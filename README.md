@@ -33,7 +33,7 @@ docker compose up -d
 docker run -d -p 8082:8082 --name tower_game \
 -v tower_game_data:/app/data \
 tower_game:latest
-
+```
 ---
 
 ## ☸️ Run in Kubernetes
