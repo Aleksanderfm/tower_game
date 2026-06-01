@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,minimal-ui">
+  <title>Tower Building</title>
+  <link rel="icon" type="image/x-icon" href="./assets/favicon.png">
+  <style>
+    * {margin:0;padding:0}
+    img {width:100%}
+    html {background:#fff;height:100%}
+    body {font-family:"Helvetica Neue",Arial,Helvetica,sans-serif;margin:0 auto;text-align:center;width:100%;height:100%;background:#f95240 url(assets/main-bg.png)}
+    @media screen and (min-height:560px) {html{font-size:100px}}
+    @media screen and (min-height:640px) {html{font-size:112.5px}}
+    @media screen and (min-height:720px) {html{font-size:125px}}
+    @media screen and (min-height:800px) {html{font-size:137.5px}}
+    @media screen and (min-height:880px) {html{font-size:150px}}
+    @media screen and (min-height:960px) {html{font-size:162.5px}}
+    @media screen and (min-height:1040px) {html{font-size:180px}}
+    @media screen and (min-height:1200px) {html{font-size:200px}}
+    html {font-size:17.6vh}
+    #canvas {position:fixed;left:0;top:0;right:0;bottom:0;margin:auto}
+    a {text-decoration:none}
+    li,ol,ul {list-style-type:none;padding:0;margin:0}
+    .hide {display:none}
+    .clear {clear:both}
+    .loading {background-color:#f05a50;height:100%;width:100%}
+    .loading .main {width:60%;margin:0 auto;color:#fff}
+    .loading .main img {width:60%;margin:1rem auto 0}
+    .loading .main .title {font-size:.3rem}
+    .loading .main .text {font-size:.15rem}
+    .loading .main .bar {height:.12rem;width:100%;border:3px solid #fff;border-radius:.6rem;margin:.1rem 0}
+    .loading .main .bar .sub {height:.1rem;width:98%;margin:.008rem auto 0}
+    .loading .main .bar .percent {height:100%;width:0;background-color:#fff;border-radius:.6rem}
+    .loading .logo {position:absolute;bottom:.3rem;left:0;right:0}
+    .loading .logo img {width:1rem}
+    .content {height:100vh;margin:0 auto;position:relative}
+    .landing .title {width:60%}
+    .landing .logo {width:30%;position:absolute;right:.2rem;top:.2rem}
+    .landing .action-2 {position:absolute;bottom:.2rem;width:100%}
+    .landing .start {width:65%}
+    .slideTop {-webkit-animation:st 1s ease-in-out;animation:st 1s ease-in-out}
+    @-webkit-keyframes st {0%{transform:translateZ(0)}100%{transform:translate3d(0,-100%,0)}}
+    @keyframes st {0%{transform:translateZ(0)}100%{transform:translate3d(0,-100%,0)}}
+    .slideBottom {-webkit-animation:sb 1s ease-in-out;animation:sb 1s ease-in-out}
+    @-webkit-keyframes sb {0%{transform:translateZ(0)}100%{transform:translate3d(0,200%,0)}}
+    @keyframes sb {0%{transform:translateZ(0)}100%{transform:translate3d(0,200%,0)}}
+    .swing {-webkit-animation:sw 2s ease-in-out alternate infinite;animation:sw 2s ease-in-out alternate infinite}
+    @-webkit-keyframes sw {0%{transform:rotate(5deg);transform-origin:top center}100%{transform:rotate(-5deg);transform-origin:top center}}
+    @keyframes sw {0%{transform:rotate(5deg);transform-origin:top center}100%{transform:rotate(-5deg);transform-origin:top center}}
+    .modal .mask {background-color:#000;opacity:.6;position:fixed;height:100%;width:100%;top:0;left:0}
+    .modal .modal-content {position:fixed;height:100%;width:90%;margin-top:.3rem;top:0}
+    .modal .main {width:85%;margin:0 auto}
+    .modal .container {position:relative}
+    .modal .bg {width:100%;position:absolute;top:0;left:0}
+    .modal .modal-main {width:100%;position:absolute;top:0;left:0;margin-top:-.4rem}
+    .modal .over-img {width:80%;margin:.8rem auto 0}
+    .modal .over-score {margin-top:-.2rem;font-size:.5rem;color:#ff735c;text-shadow:-2px -2px 0 #fff,2px -2px 0 #fff,-2px 2px 0 #fff,2px 2px 0 #fff}
+    .modal .tip {font-size:.16rem;color:#9b724e}
+    .modal .over-button-b {width:70%;margin:.1rem auto 0;cursor:pointer}
+    .wxShare {background:#000;position:absolute;top:0;left:0;width:100%;height:100%;z-index:11;opacity:.9}
+    .wxShare img {width:50%;float:right;margin:10px 10px 0 0}
+    .font-wenxue {font-family: Arial, sans-serif}
+    #leaderboard {position:fixed;right:10px;top:10px;background:rgba(0,0,0,0.8);color:#fff;padding:15px;border-radius:8px;width:220px;max-height:400px;overflow-y:auto;font-size:12px;z-index:100}
+    #leaderboard h3 {margin-bottom:10px;color:#FFD700;font-size:14px}
+    .leaderboard-item {padding:5px 0;border-bottom:1px solid #333;display:flex;justify-content:space-between}
+    .leaderboard-item:last-child {border-bottom:none}
+    .leaderboard-rank {color:#FFD700;font-weight:bold;min-width:20px}
+    .leaderboard-name {flex:1;text-align:left;margin:0 8px;text-overflow:ellipsis;overflow:hidden}
+    .leaderboard-score {color:#4ECDC4;font-weight:bold}
+    .user-info {position:fixed;top:10px;left:10px;background:rgba(0,0,0,0.8);color:#fff;padding:10px 15px;border-radius:8px;font-size:12px;z-index:100}
+    .user-info .logout-btn {margin-top:8px;padding:5px 10px;background:#f95240;border:none;color:#fff;border-radius:4px;cursor:pointer;font-size:11px}
+    #authModal {display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:300;justify-content:center;align-items:center}
+    #authModal.hide {display:none}
+    #authModal .modal-box {background:#fff;padding:40px;border-radius:10px;text-align:center;max-width:350px;box-shadow:0 4px 6px rgba(0,0,0,0.3)}
+    #authModal h2 {color:#333;margin-bottom:20px;font-size:24px}
+    #authModal input {width:100%;padding:12px;margin-bottom:15px;border:2px solid #ddd;border-radius:5px;font-size:14px;box-sizing:border-box}
+    #authModal input:focus {outline:none;border-color:#f95240}
+    #authModal .button-group {display:flex;gap:10px;margin-top:20px}
+    #authModal button {flex:1;padding:12px;border:none;border-radius:5px;font-size:14px;font-weight:bold;cursor:pointer}
+    #authModal .btn-primary {background:#f95240;color:#fff}
+    #authModal .btn-primary:hover {background:#e63a2a}
+    #authModal .btn-secondary {background:#ddd;color:#333}
+    #authModal .btn-secondary:hover {background:#ccc}
+    #authModal .error-msg {color:#d32f2f;margin-bottom:10px;font-size:12px;min-height:14px}
+    #authModal .toggle-link {margin-top:15px;font-size:12px;color:#666}
+    #authModal .toggle-link a {color:#f95240;cursor:pointer;text-decoration:underline}
+    #nameModal {display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:200;justify-content:center;align-items:center}
+    #nameModal.show {display:flex}
+    #nameModal .modal-box {background:#fff;padding:30px;border-radius:10px;text-align:center;max-width:300px;box-shadow:0 4px 6px rgba(0,0,0,0.3)}
+    #nameModal h2 {color:#333;margin-bottom:10px;font-size:18px}
+    #nameModal .best-score {color:#888;font-size:12px;margin-bottom:15px}
+    #nameModal .message {font-size:12px;margin-bottom:15px;min-height:20px}
+    #nameModal button {width:100%;padding:12px;background:#f95240;color:#fff;border:none;border-radius:5px;font-size:16px;font-weight:bold;cursor:pointer}
+    #nameModal button:hover {background:#e63a2a}
+  </style>
+</head>
+<body>
+  <canvas id="canvas" class="hide"></canvas>
+  <div class="content">
+    <div class="loading">
+      <div class="main">
+        <img src="./assets/main-loading.gif">
+        <div class="progress">
+          <div class="title font-wenxue">0%</div>
+          <div class="bar">
+            <div class="sub"><div class="percent"></div></div>
+          </div>
+          <div class="text">Loading...</div>
+        </div>
+      </div>
+    </div>
+    <div class="landing hide">
+      <div class="action-1"><img src="./assets/main-index-title.png" class="title swing"></div>
+      <div class="action-2"><img id="start" src="./assets/main-index-start.png" class="start"></div>
+    </div>
+    <div id="modal" class="modal hide">
+      <div class="mask"></div>
+      <div class="js-modal-content modal-content">
+        <div class="main">
+          <div class="container">
+            <img src="./assets/main-modal-bg.png" class="bg">
+            <div class="modal-main">
+              <div id="over-modal" class="hide js-modal-card">
+                <img src="./assets/main-modal-over.png" class="over-img">
+                <div id="score" class="over-score font-wenxue"></div>
+                <div id="over-zero" class="hide">
+                  <div class="tip">
+                    <p>Try Again!</p>
+                    <img src="./assets/main-modal-again-b.png" class="over-button-b js-reload">
+                    <img src="./assets/main-modal-invite-b.png" class="over-button-b js-invite">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="wxShare hide"><img src="./assets/main-share-icon.png"></div>
+    <div id="userInfo" class="user-info hide">
+      <div>Welcome, <strong id="displayUsername"></strong></div>
+      <div style="font-size:11px;color:#888;margin-top:3px">Best: <span id="bestScore">0</span></div>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </div>
+    <div id="leaderboard">
+      <h3>🏆 LEADERBOARD</h3>
+      <div id="leaderboardList"></div>
+    </div>
+  </div>
+
+  <div id="authModal" class="hide">
+    <div class="modal-box">
+      <h2 id="authTitle">Login</h2>
+      <div class="error-msg" id="authError"></div>
+      <input type="text" id="authUsername" placeholder="Username" maxlength="20">
+      <input type="password" id="authPassword" placeholder="Password" maxlength="20">
+      <div class="button-group">
+        <button class="btn-primary" id="authSubmitBtn">Login</button>
+        <button class="btn-secondary" id="authToggleBtn">Register</button>
+      </div>
+      <div class="toggle-link">
+        Don't have an account? <a id="authToggleLink">Register here</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="nameModal">
+    <div class="modal-box">
+      <h2>Game Over!</h2>
+      <div class="best-score">Your score: <strong id="currentScore">0</strong></div>
+      <div id="scoreMessage" class="message"></div>
+      <button id="submitScoreBtn">Play Again</button>
+    </div>
+  </div>
+
+  <script src="./dist/main.js"></script>
+  <script src="./assets/zepto-1.1.6.min.js"></script>
+  <script>
+    var domReady, loadFinish, canvasReady, loadError, gameStart, game, score, successCount
+    var gameWidth = window.innerWidth
+    var gameHeight = window.innerHeight
+    var ratio = 1.5
+    if (gameHeight / gameWidth < ratio) {
+      gameWidth = Math.ceil(gameHeight / ratio)
+    }
+    $('.content').css({ "height": gameHeight + "px", "width": gameWidth + "px" })
+    $('.js-modal-content').css({ "width": gameWidth + "px" })
+
+    let currentUser = null
+    let isLoginMode = true
+
+    function showAuthModal() {
+      $('#authModal').removeClass('hide')
+      $('#authUsername').focus()
+    }
+
+    function hideAuthModal() {
+      $('#authModal').addClass('hide')
+    }
+
+    function toggleAuthMode() {
+      isLoginMode = !isLoginMode
+      $('#authTitle').text(isLoginMode ? 'Login' : 'Register')
+      $('#authSubmitBtn').text(isLoginMode ? 'Login' : 'Register')
+      $('#authToggleBtn').text(isLoginMode ? 'Register' : 'Back to Login')
+      $('#authError').text('')
+      $('#authUsername').val('')
+      $('#authPassword').val('')
+      $('#authUsername').focus()
+    }
+
+    function handleAuth() {
+      const username = $('#authUsername').val().trim()
+      const password = $('#authPassword').val().trim()
+
+      if (!username || !password) {
+        $('#authError').text('Please fill in all fields')
+        return
+      }
+
+      const endpoint = isLoginMode ? '/api/login' : '/api/register'
+      
+      fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            currentUser = { id: data.userId, username: data.username }
+            localStorage.setItem('userId', data.userId)
+            localStorage.setItem('username', data.username)
+            hideAuthModal()
+            updateUserInfo()
+            loadLeaderboard()
+          } else {
+            $('#authError').text(data.error || 'Auth failed')
+          }
+        })
+        .catch(err => {
+          console.error('Auth error:', err)
+          $('#authError').text('Connection error')
+        })
+    }
+
+    function loadUserBestScore() {
+      if (!currentUser) return
+      fetch(`/api/score/${currentUser.id}`)
+        .then(res => res.json())
+        .then(data => {
+          $('#bestScore').text(data.score || 0)
+        })
+        .catch(err => console.error('Failed to load best score:', err))
+    }
+
+    function updateUserInfo() {
+      if (currentUser) {
+        $('#displayUsername').text(currentUser.username)
+        $('#userInfo').removeClass('hide')
+        loadUserBestScore()
+      } else {
+        $('#userInfo').addClass('hide')
+      }
+    }
+
+    function logout() {
+      currentUser = null
+      localStorage.removeItem('userId')
+      localStorage.removeItem('username')
+      updateUserInfo()
+      showAuthModal()
+    }
+
+    function loadLeaderboard() {
+      fetch('/api/scores?limit=10')
+        .then(res => res.json())
+        .then(scores => {
+          let html = ''
+          scores.forEach((s, idx) => {
+            html += `<div class="leaderboard-item">
+              <span class="leaderboard-rank">#${idx + 1}</span>
+              <span class="leaderboard-name">${s.username}</span>
+              <span class="leaderboard-score">${s.score}</span>
+            </div>`
+          })
+          $('#leaderboardList').html(html || '<p style="color:#999">No scores yet</p>')
+        })
+        .catch(err => console.error('Failed to load leaderboard:', err))
+    }
+
+    function saveScoreAndReset() {
+      if (!currentUser) {
+        alert('Not logged in!')
+        return
+      }
+
+      fetch('/api/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          username: currentUser.username,
+          score: score,
+          blocks: successCount
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            if (data.newBest) {
+              $('#scoreMessage').html('<div style="color:#4ECDC4;font-weight:bold">🎉 New Best Score!</div>')
+            } else {
+              $('#scoreMessage').html('<div style="color:#888">Not your best score</div>')
+            }
+            loadLeaderboard()
+            loadUserBestScore()
+            
+            setTimeout(function() {
+              location.reload()
+            }, 1500)
+          }
+        })
+        .catch(err => console.error('Failed to save score:', err))
+    }
+
+    function checkAuth() {
+      const userId = localStorage.getItem('userId')
+      const username = localStorage.getItem('username')
+      if (userId && username) {
+        currentUser = { id: parseInt(userId), username }
+        return true
+      }
+      return false
+    }
+
+    function hideLoading() {
+      if (domReady && canvasReady) {
+        loadFinish = true
+        setTimeout(function () {
+          $('#canvas').show()
+          $('.loading').hide()
+          if (currentUser) {
+            $('.landing').show()
+          } else {
+            showAuthModal()
+          }
+        }, 1000)
+      }
+    }
+
+    function updateLoading(status) {
+      var success = status.success
+      var total = status.total
+      var failed = status.failed
+      if (failed > 0 && !loadError) {
+        loadError = true
+        alert('Network error... Please try again.')
+        return
+      }
+      var percent = parseInt((success / total) * 100);
+      if (percent === 100 && !canvasReady) {
+        canvasReady = true
+        hideLoading()
+      }
+      percent = percent > 98 ? 98 : percent
+      percent = percent + '%'
+      $('.loading .title').text(percent);
+      $('.loading .percent').css({
+        'width': percent
+      })
+    }
+
+    function overShowOver() {
+      $('#modal').show()
+      $('#over-modal').show()
+      $('#over-zero').show()
+      $('#currentScore').text(score)
+      $('#scoreMessage').html('')
+      $('#nameModal').addClass('show')
+    }
+
+    const option = {
+      width: gameWidth,
+      height: gameHeight,
+      canvasId: 'canvas',
+      soundOn: true,
+      setGameScore: function (s) {
+        score = s
+      },
+      setGameSuccess: function (s) {
+        successCount = s
+      },
+      setGameFailed: function (f) {
+        $('#score').text(score)
+        if (f >= 3) overShowOver()
+      }
+    }
+
+    function gameReady() {
+      game = TowerGame(option)
+      game.load(function () {
+        game.init()
+      }, updateLoading)
+    }
+
+    function indexHide() {
+      $('.landing .action-1').addClass('slideTop')
+      $('.landing .action-2').addClass('slideBottom')
+      setTimeout(function () {
+        $('.landing').hide()
+      }, 950)
+    }
+
+    $('#start').on('click', function () {
+      if (!currentUser) {
+        alert('Please login first!')
+        return
+      }
+      if (gameStart) return
+      gameStart = true
+      if (game && game.playBgm) {
+        game.playBgm()
+      }
+      indexHide()
+      setTimeout(game.start, 400)
+    })
+
+    $('.js-reload').on('click', function () {
+      saveScoreAndReset()
+    })
+
+    $('.js-invite').on('click', function () {
+      $('.wxShare').show()
+    })
+
+    $('.wxShare').on('click', function () {
+      $('.wxShare').hide()
+    })
+
+    $('#authSubmitBtn').on('click', handleAuth)
+    $('#authToggleBtn').on('click', toggleAuthMode)
+    $('#authToggleLink').on('click', toggleAuthMode)
+    $('#logoutBtn').on('click', logout)
+    $('#submitScoreBtn').on('click', saveScoreAndReset)
+
+    $('#authUsername').on('keypress', function(e) {
+      if (e.which === 13) handleAuth()
+    })
+
+    $('#authPassword').on('keypress', function(e) {
+      if (e.which === 13) handleAuth()
+    })
+
+    checkAuth()
+    updateUserInfo()
+    
+    window.addEventListener('load', function () {
+      domReady = true
+      checkAuth()
+      updateUserInfo()
+      gameReady()
+      hideLoading()
+      loadLeaderboard()
+    }, false)
+
+    setInterval(loadLeaderboard, 5000)
+  </script>
+
+</body>
+</html>
