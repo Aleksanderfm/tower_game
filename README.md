@@ -11,6 +11,13 @@ Forked from https://github.com/iamkun/tower_game
 * Offline support
 
 ---
+## 🐳 Build Docker image
+
+Before running the container, build the image:
+```bash
+docker build -t tower_game:latest .
+```
+---
 
 ## 🐳 Run with Docker Compose
 
@@ -26,41 +33,6 @@ docker compose up -d
 docker run -d -p 8082:8082 --name tower_game \
 -v tower_game_data:/app/data \
 tower_game:latest
-# Tower Game
-
-Forked from https://github.com/iamkun/tower_game
-
-## Features added
-
-* Docker containerization
-* Backend API
-* User authentication
-* Leaderboard system
-* Offline support
-
----
-
-## 🐳 Run with Docker Compose
-
-```bash
-docker compose up -d
-
-# then check:
-http://localhost:8082
-```
-
----
-
-## 🐳 Run with Docker (without compose)
-
-```bash
-docker run -d -p 8082:8082 --name tower_game \
--v tower_game_data:/app/data \
-tower_game:latest
-
-# then check:
-http://localhost:8082
-```
 
 ---
 
