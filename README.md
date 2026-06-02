@@ -93,7 +93,6 @@ persistence:
 - ✅ Added leaderboard UI with real-time updates
 - ✅ Removed all external dependencies (Google Analytics, custom fonts)
 - ✅ Made app fully offline-compatible
-- ✅ Added .gitignore for sensitive data and database files
 - ✅ Configured for Kubernetes/Helm deployment
 
 ## Database Persistence
